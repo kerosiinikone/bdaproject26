@@ -1,0 +1,10 @@
+var,label,n_missing,reason,pct
+y,q11k: trust in government (outcome),34,item non-response,1.5582034830430798
+gender,t1: gender,0,item non-response,0
+age,t2: age group,0,item non-response,0
+region,t3: region,0,item non-response,0
+edu,T4: education,3,item non-response,0.13748854262144822
+econ,T7: household economy,41,"""can't say"" (T7 = 5)",1.8790100824931255
+language,bv1: answer language,0,item non-response,0
+living,t5: lives with (candidate),37,item non-response,1.695692025664528
+children,t6: minor children (candidate),584,not asked if living alone + item non-response,26.76443629697525

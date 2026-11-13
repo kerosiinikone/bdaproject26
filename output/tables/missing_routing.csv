@@ -1,0 +1,6 @@
+var,asked_only_if,check
+t3b,region is Uusimaa (t3 = 17),TRUE
+t6,does not live alone (t5 != 1),TRUE
+q21k,age group 15-19 (t2 = 1),TRUE
+q21l,lives in Helsinki (t3b = 1),TRUE
+q21m,lives outside Helsinki,TRUE

@@ -1,0 +1,7 @@
+y,gender,age,region,edu,econ,language,n
+ok,ok,ok,ok,ok,ok,ok,2114
+ok,ok,ok,ok,ok,missing,ok,31
+missing,ok,ok,ok,ok,ok,ok,25
+missing,ok,ok,ok,ok,missing,ok,9
+ok,ok,ok,ok,missing,ok,ok,2
+ok,ok,ok,ok,missing,missing,ok,1

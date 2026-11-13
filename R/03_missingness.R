@@ -17,7 +17,7 @@ d <- readRDS(file.path(root, "data", "processed", "pulse.rds"))
 raw <- read_delim(file.path(root, "data", "raw", "daF3991_fin.csv"),
                   delim = ";", locale = locale(decimal_mark = ","),
                   na = c("", " "), show_col_types = FALSE, guess_max = 5000)
-qmap <- read_csv(file.path(root, "data", "FSD3991", "question_map.csv"),
+qmap <- read_csv(file.path(root, "data", "question_map.csv"),
                  show_col_types = FALSE)
 fig_dir <- file.path(root, "output", "figures")
 tab_dir <- file.path(root, "output", "tables")

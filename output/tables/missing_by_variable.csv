@@ -1,0 +1,75 @@
+var,blank,cant_say,total,pct,label_en
+q21k,2092,0,2092,95.87534372135656,NA
+q21l,1867,0,1867,85.56370302474794,Intends to vote: municipal (Helsinki only)
+t3b,1421,0,1421,65.12373968835931,NA
+t6,584,0,584,26.76443629697525,NA
+q21m,379,0,379,17.369385884509626,Intends to vote: regional+municipal (rest of Finland)
+q21c,363,0,363,16.636113657195235,NA
+q37h,257,0,257,11.778185151237397,Finland's response to Russian influence adequate
+q44a,205,0,205,9.395050412465627,Seen disinformation online (past month)
+q11s,176,0,176,8.065994500458295,NA
+q64a,157,0,157,7.195233730522457,Enough done for nature's wellbeing (5 yrs)
+q63a,147,0,147,6.736938588450962,Seen exercise-promoting messaging (6 mo)
+q11z,142,0,142,6.507791017415215,NA
+q44b,132,0,132,6.049495875343721,Seen internet disruptions/infosec issues (past month)
+q37b,128,0,128,5.866177818515124,Accept EU sanctions on Russia despite cost
+q64b,125,0,125,5.728689275893675,Enough done for economic wellbeing (5 yrs)
+q11l,120,0,120,5.499541704857928,NA
+q11n,105,0,105,4.812098991750688,NA
+q11y,97,0,97,4.445462878093492,NA
+q21f,97,0,97,4.445462878093492,Voting lets me influence things that matter
+q45b,96,0,96,4.399633363886343,NATO membership effect on sense of security
+q11o,93,0,93,4.2621448212648945,NA
+q11aa,93,0,93,4.2621448212648945,NA
+q23,73,16,89,4.078826764436297,NA
+q37c,89,0,89,4.078826764436297,Finland should take many Ukrainian refugees
+q64c,83,0,83,3.8038496791934007,Enough done for human wellbeing (5 yrs)
+q37i,72,0,72,3.2997250229147572,Russia's recent actions worry me
+q62,69,0,69,3.1622364802933087,Too little exercise is a major societal issue
+q11x,65,0,65,2.9789184234647115,NA
+q21y,64,0,64,2.933088909257562,NA
+q11r,56,0,56,2.5664527956003664,NA
+q36e,50,0,50,2.2914757103574703,Worry: Russian influence on Finnish society
+q11m,47,0,47,2.153987167736022,NA
+q36d,44,0,44,2.016498625114574,Worry: Russian military action vs Finland
+q11t,42,0,42,1.924839596700275,NA
+T7,0,41,41,1.8790100824931255,NA
+q36b,38,0,38,1.7415215398716775,Worry: war spreading from Ukraine
+t5,37,0,37,1.695692025664528,NA
+q35,35,0,35,1.6040329972502292,NA
+q11k,34,0,34,1.5582034830430798,NA
+q1,33,0,33,1.5123739688359303,NA
+q11p,18,0,18,0.8249312557286893,NA
+q5,16,0,16,0.7332722273143905,NA
+q6,16,0,16,0.7332722273143905,Worry about household finances next month
+q61b,16,0,16,0.7332722273143905,Changed exercise behaviour (6 mo)
+q63b,15,0,15,0.687442713107241,NA
+q1_b,14,0,14,0.6416131989000916,NA
+q11q,13,0,13,0.5957836846929423,NA
+q61a,12,0,12,0.5499541704857929,Exercised per recommendations (6 mo)
+q34,10,0,10,0.458295142071494,My life feels safe
+q7,8,0,8,0.36663611365719523,Feels stress nowadays
+T4,3,0,3,0.13748854262144822,NA
+fsd_no,0,0,0,0,Dataset number (FSD)
+fsd_vr,0,0,0,0,Dataset version (FSD)
+fsd_id,0,0,0,0,Respondent ID
+fsd_li,0,0,0,0,Licence (CC BY 4.0)
+t1,0,0,0,0,NA
+t2,0,0,0,0,NA
+t3,0,0,0,0,Region (maakunta)
+q55_1,0,0,0,0,NA
+q55_2,0,0,0,0,NA
+q55_3,0,0,0,0,NA
+q55_4,0,0,0,0,NA
+q55_5,0,0,0,0,NA
+q55_6,0,0,0,0,NA
+q55_7,0,0,0,0,NA
+q55_8,0,0,0,0,NA
+q55_9,0,0,0,0,NA
+q55_10,0,0,0,0,NA
+q55_11,0,0,0,0,NA
+q55_12,0,0,0,0,NA
+q55_13,0,0,0,0,NA
+q55_14,0,0,0,0,NA
+bv1,0,0,0,0,NA
+paino,0,0,0,0,Survey weight
