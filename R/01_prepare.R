@@ -13,7 +13,7 @@ suppressPackageStartupMessages({
 })
 
 root <- if (requireNamespace("here", quietly = TRUE)) here::here() else "."
-raw_path <- file.path(root, "data", "FSD3991", "Study", "Data", "daF3991_fin.csv")
+raw_path <- file.path(root, "data", "raw", "daF3991_fin.csv")
 
 # The file is ';'-separated, uses ',' as the decimal mark (paino) and a single
 # space for an empty cell (item non-response or a question that was not asked).
