@@ -64,3 +64,5 @@ output/figures/*
 
 # ---- Secrets ----
 .env
+
+pi*
