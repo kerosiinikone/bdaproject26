@@ -88,7 +88,9 @@ m6 <- fit_opts(low3 ~ age + mo(econ) + edu + (1 + mo(econ) | region),
 # non-centered param -> for HMC convergence if necessary?
 # HMC diagnostics?
 # SIMPLE SUMMARY -> NO ISSUES / WHAT WERE THE PROBLEMATIC PARTS?
+# COEFFICIENTS, PLOTS as appendices
 summary(m1)
+summarise_draws(as_draws_df(m1), default_convergence_measures())
 
 # marginal posterior for coefficients reported?
 # report + interpret marginal coefficient posteriors (log-odds / odds ratios)!

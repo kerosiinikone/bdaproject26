@@ -8,13 +8,49 @@ author:
 date: today
 format:
   pdf:
+    documentclass: scrartcl
+    papersize: a4
+    geometry:
+      - top=25mm
+      - bottom=25mm
+      - left=25mm
+      - right=25mm
     toc: true
+    toc-depth: 2
     number-sections: true
     colorlinks: true
+    linkcolor: RoyalBlue
+    urlcolor: RoyalBlue
+    citecolor: RoyalBlue
+    fontsize: 11pt
+    linestretch: 1.15
+    fig-pos: "H"
+    fig-align: center
+    code-block-bg: "#f5f5f5"
+    code-block-border-left: "#cccccc"
+    highlight-style: github
+    include-in-header:
+      text: |
+        \usepackage[sc]{mathpazo}
+        \linespread{1.05}
+        \usepackage{tgcursor}
+        \usepackage{microtype}
+        \usepackage{titlesec}
+        \usepackage{booktabs}
+        \usepackage{float}
+        \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
+        \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+        \setlength{\parskip}{0.5em}
+        \setlength{\parindent}{0pt}
   html:
     toc: true
+    toc-depth: 2
     number-sections: true
     embed-resources: true
+    theme: cosmo
+    fontsize: 1.05em
+    mainfont: "Palatino, Georgia, serif"
+    monofont: "Menlo, Consolas, monospace"
 bibliography: references.bib
 execute:
   echo: false
@@ -39,7 +75,11 @@ theme_set(bayesplot::theme_default())
 
 # Introduction
 
-Motivation, the problem, and the main modelling idea. An illustrative figure helps.
+Motivation and the main modelling idea. An illustrative figure helps.
+
+## Problem Formulation
+
+The problem.
 
 # Data
 
@@ -54,24 +94,72 @@ d <- read_csv(here::here("data", "processed", "data.csv"))
 
 # Models
 
-At least two models, e.g. a non-hierarchical and a hierarchical one. Write each
-model in mathematical notation.
+We develop a sequence of models of increasing complexity for the binary outcome
+$y_i = \texttt{low3}_i \in \{0, 1\}$, which indicates whether respondent $i$
+reports low institutional trust. All models share a common logistic-regression
+backbone and the same set of socio-demographic covariates; later models extend
+the baseline with hierarchical, monotonic, and smooth structure. Each model is
+presented below in its own block, so that additional models can be slotted in
+using the same template.
+
+| Model | Specification | Type |
+|:-----:|:--------------|:-----|
+| **M1** | `low3 ~ age + econ5 + edu` | Non-hierarchical logistic regression |
+| *M2* | *(to be documented)* | *Hierarchical (varying intercept)* |
+| *...* | *(to be documented)* | *...* |
+
+: Overview of the candidate models. {#tbl-models tbl-colwidths="[12,55,33]"}
+
+## Baseline logistic regression {#sec-m1}
+
+::: {.callout-note icon=false}
+## Model 1 · Three-covariate logistic regression
+
+The baseline model is a non-hierarchical Bernoulli logistic regression that
+explains low trust through three categorical covariates: age group
+(`age`), economic situation (`econ5`), and education level (`edu`). It serves
+as the reference against which all later, more flexible models are compared.
+
+**Model.** For respondent $i = 1, \dots, n$,
+$$
+\begin{aligned}
+y_i &\sim \operatorname{Bernoulli}(p_i), \\
+\operatorname{logit}(p_i) &= \alpha + \mathbf{x}_i^{\top}\boldsymbol{\beta},
+\end{aligned}
+$$
+
+where $\mathbf{x}_i$ is the vector of dummy-coded indicators for the levels of
+`age`, `econ5`, and `edu` (reference levels absorbed into the intercept),
+$\alpha$ is the intercept on the log-odds scale, and $\boldsymbol{\beta}$ the
+vector of covariate coefficients.
+
+**Priors (weakly informative).**
+$$
+\alpha \sim \mathcal{N}(0, 2^2), \qquad
+\beta_j \sim \mathcal{N}(0, 1^2).
+$$
+
+These priors are weakly informative on the log-odds scale: the $\beta_j$ keep
+individual covariate effects within a plausible range (a shift of a few units in
+log-odds), while the wider intercept prior allows for a broad baseline
+prevalence of low trust.
+:::
+
+```{r}
+#| label: priors-m1
+#| eval: false
+pr_base <- c(
+  prior(normal(0, 1), class = "b"),          # covariate effects
+  prior(normal(0, 2), class = "Intercept")   # baseline log-odds
+)
+```
 
 # Priors
 
 Proper priors for every parameter, with a justification (weakly informative or
 informative). List any default priors left unchanged; note that brms uses flat
-priors for regression coefficients by default.
-
-```{r}
-#| label: priors
-#| eval: false
-priors_m1 <- c(
-  prior(normal(0, 1), class = "b"),
-  prior(normal(0, 2.5), class = "Intercept"),
-  prior(exponential(1), class = "sigma")
-)
-```
+priors for regression coefficients by default. The per-model priors are stated
+alongside each model in the [Models](#sec-m1) section.
 
 # Model code
 
