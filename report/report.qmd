@@ -40,6 +40,7 @@ format:
         \usepackage{float}
         \titleformat{\section}{\normalfont\Large\bfseries}{\thesection}{1em}{}
         \titleformat{\subsection}{\normalfont\large\bfseries}{\thesubsection}{1em}{}
+        \titleformat{\subsubsection}{\normalfont\normalsize\bfseries}{\thesubsubsection}{1em}{}
         \setlength{\parskip}{0.5em}
         \setlength{\parindent}{0pt}
   html:
@@ -70,6 +71,7 @@ library(priorsense)
 library(tidyverse)
 options(brms.backend = "cmdstanr", mc.cores = 4)
 fit_dir <- here::here("output", "fits")
+res_m1  <- here::here("output", "m1")   # saved artifacts from R/04_model_fitting.R
 theme_set(bayesplot::theme_default())
 ```
 
@@ -86,6 +88,8 @@ The problem.
 Source, how it was collected and preprocessed, and whether it has been analysed
 online before (cite it and explain how this analysis differs).
 
+Show graphics, present the original and transformed features, their attributes, etc.
+
 ```{r}
 #| label: data
 #| eval: false
@@ -96,15 +100,14 @@ d <- read_csv(here::here("data", "processed", "data.csv"))
 
 We develop a sequence of models of increasing complexity for the binary outcome
 $y_i = \texttt{low3}_i \in \{0, 1\}$, which indicates whether respondent $i$
-reports low institutional trust. All models share a common logistic-regression
-backbone and the same set of socio-demographic covariates; later models extend
+reports low institutional trust (k <=3 on the ordinal scale). (All models share a common logistic-regression
+backbone and the same set of socio-demographic covariates -> could change?); later models extend
 the baseline with hierarchical, monotonic, and smooth structure. Each model is
-presented below in its own block, so that additional models can be slotted in
-using the same template.
+presented and motivated below in their own blocks.
 
 | Model | Specification | Type |
 |:-----:|:--------------|:-----|
-| **M1** | `low3 ~ age + econ5 + edu` | Non-hierarchical logistic regression |
+| **M1** | `low3 ~ age + econ5 + edu + language + living` | Non-hierarchical logistic regression |
 | *M2* | *(to be documented)* | *Hierarchical (varying intercept)* |
 | *...* | *(to be documented)* | *...* |
 
@@ -112,13 +115,12 @@ using the same template.
 
 ## Baseline logistic regression {#sec-m1}
 
-::: {.callout-note icon=false}
-## Model 1 · Three-covariate logistic regression
-
 The baseline model is a non-hierarchical Bernoulli logistic regression that
-explains low trust through three categorical covariates: age group
-(`age`), economic situation (`econ5`), and education level (`edu`). It serves
-as the reference against which all later, more flexible models are compared.
+explains low trust through all available categorical covariates (kept rather
+than preselected without a substantive reason): age group (`age`), economic
+situation (`econ5`), education level (`edu`), answer language (`language`), and
+household/family situation (`living`). It serves as the reference against which
+all later, more flexible models are compared.
 
 **Model.** For respondent $i = 1, \dots, n$,
 $$
@@ -129,7 +131,8 @@ y_i &\sim \operatorname{Bernoulli}(p_i), \\
 $$
 
 where $\mathbf{x}_i$ is the vector of dummy-coded indicators for the levels of
-`age`, `econ5`, and `edu` (reference levels absorbed into the intercept),
+`age`, `econ5`, `edu`, `language`, and `living` (reference levels absorbed into
+the intercept),
 $\alpha$ is the intercept on the log-odds scale, and $\boldsymbol{\beta}$ the
 vector of covariate coefficients.
 
@@ -143,16 +146,65 @@ These priors are weakly informative on the log-odds scale: the $\beta_j$ keep
 individual covariate effects within a plausible range (a shift of a few units in
 log-odds), while the wider intercept prior allows for a broad baseline
 prevalence of low trust.
-:::
 
 ```{r}
 #| label: priors-m1
 #| eval: false
 pr_base <- c(
-  prior(normal(0, 1), class = "b"),          # covariate effects
-  prior(normal(0, 2), class = "Intercept")   # baseline log-odds
+  prior(normal(0, 1), class = "b"),
+  prior(normal(0, 2), class = "Intercept")
 )
 ```
+
+### Convergence {#sec-m1-conv}
+
+Using the shared sampler settings (see [Inference details]), model 1 mixes well,
+with no divergent transitions and $\hat{R}$ and effective sample sizes within
+acceptable bounds across all parameters (max $\hat{R}$ of 1.004 and min effective sample sizes of 1236 as bulk and 2125 as tail).
+
+### Marginal posteriors {#sec-m1-coef}
+
+@fig-m1-coef shows the conditional covariate effects on the probability
+scale (left) and the marginal coefficient posteriors as log-odds intervals
+(right), which exponentiate to odds ratios.
+
+```{r}
+#| label: fig-m1-coef
+#| fig-cap: "Marginal posteriors for model 1."
+#| fig-subcap:
+#|   - "Conditional effects (probability scale)"
+#|   - "Coefficient intervals (log-odds)"
+#| layout-ncol: 2
+#| eval: !expr all(file.exists(here::here("output", "m1", c("coef_conditional.png", "coef_intervals.png"))))
+knitr::include_graphics(file.path(res_m1, c("coef_conditional.png", "coef_intervals.png")))
+```
+
+The marginal posterior effects indicate ... (this is relevant for the problem!)
+
+### Posterior predictive check {#sec-m1-ppc}
+
+As the outcome is binary, we assess fit with a PAV-adjusted calibration plot
+drawn from the LOO predictive distribution (@fig-m1-ppc): predicted
+probabilities should track observed frequencies along the diagonal.
+
+```{r}
+#| label: fig-m1-ppc
+#| fig-cap: "PAV-adjusted LOO predictive calibration for model 1. The calibration curve stays within the consistency bands, indicating good calibration ..."
+#| out-width: 65%
+#| eval: !expr file.exists(here::here("output", "m1", "ppc_calibration.png"))
+knitr::include_graphics(file.path(res_m1, "ppc_calibration.png"))
+```
+
+### Prior sensitivity {#sec-m1-psens}
+
+With weakly informative priors and over 2000 observations, power-scaling
+[@priorsense] shows negligible prior sensitivity, so the full diagnostic table
+is omitted. A summary of the prior sensitivity testing across all models is
+given in [Prior sensitivity analysis]. <!-- TODO: add cross-model summary -->
+
+### Predictive performance {#sec-m1-loo}
+
+PSIS-LOO provides the out-of-sample baseline for model 1; `elpd_loo` of -958.07 (standard error of 27.05), and these with its SE feed the model comparison in [Model comparison].
 
 # Priors
 
@@ -162,6 +214,8 @@ priors for regression coefficients by default. The per-model priors are stated
 alongside each model in the [Models](#sec-m1) section.
 
 # Model code
+
+Appendix.
 
 ```{r}
 #| label: fit-models
@@ -176,38 +230,27 @@ m2 <- brm(y ~ x + (1 | group), data = d, prior = priors_m2,
 
 # Inference details
 
-Chains, iterations, warmup, and the exact sampling call used.
+Every model is fit in brms with Stan's dynamic HMC (NUTS): four chains of 2000
+iterations each, the first 1000 discarded as warmup, with the seed fixed for
+reproducibility. Per-model convergence, predictive, and sensitivity
+results are reported within each model's subsection, as merged above for M1.
 
 # Convergence diagnostics
 
-R-hat, bulk/tail ESS, and divergences for all models. Summarise when there are
-no problems, and describe any fixes.
-
-```{r}
-#| label: convergence
-#| eval: false
-summarise_draws(as_draws_df(m1), default_convergence_measures())
-nuts_params(m1) |> filter(Parameter == "divergent__") |> summarise(sum(Value))
-```
+We monitor $\hat{R}$, bulk-ESS, and tail-ESS for every parameter and check for
+divergent transitions. Summaries are reported per model (e.g. @sec-m1-conv),
+where we also flag any problems and the reparameterisations used to fix them.
 
 # Posterior predictive checks
 
-Checks suited to the outcome type (density overlays for continuous data,
-calibration plots for binary/ordinal, rootograms for counts).
-
-```{r}
-#| label: ppc
-#| eval: false
-pp_check(m1, ndraws = 100)
-```
+Because the outcome is binary, we use PAV-adjusted calibration drawn from the
+LOO predictive distribution rather than density overlays. Each model's check is
+shown in its subsection (e.g. @sec-m1-ppc).
 
 # Prior sensitivity analysis
 
-```{r}
-#| label: sensitivity
-#| eval: false
-powerscale_sensitivity(m1)
-```
+We use power-scaling [@priorsense] to detect prior/likelihood conflict and
+prior-driven posteriors. Results are reported per model (e.g. @sec-m1-psens).
 
 # Model comparison
 
@@ -237,3 +280,28 @@ See `docs/ai_disclosure.md`.
 :::
 
 # Appendix {.appendix}
+
+## M1 convergence diagnostics {#sec-app-m1-conv}
+
+```{r}
+#| label: tbl-m1-conv
+#| tbl-cap: "M1 convergence summary (worst case over all parameters)."
+#| eval: !expr file.exists(here::here("output", "m1", "summary.rds"))
+readRDS(file.path(res_m1, "summary.rds")) |>
+  dplyr::summarise(
+    `max Rhat`     = max(rhat),
+    `min bulk-ESS` = min(ess_bulk),
+    `min tail-ESS` = min(ess_tail)
+  ) |>
+  knitr::kable(digits = c(3, 0, 0))
+```
+
+## M1 PSIS-LOO estimates {#sec-app-m1-loo}
+
+```{r}
+#| label: tbl-m1-loo
+#| tbl-cap: "M1 PSIS-LOO estimates with standard errors."
+#| eval: !expr file.exists(here::here("output", "m1", "loo.rds"))
+readRDS(file.path(res_m1, "loo.rds"))$estimates |>
+  knitr::kable(digits = 2)
+```

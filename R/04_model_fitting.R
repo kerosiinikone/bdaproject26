@@ -21,6 +21,10 @@ if(!require(bayesplot)){
   library(bayesplot)
 }
 
+if (!require(posterior)) {
+  library(posterior)
+}
+
 if (!require(priorsense)) {
   install.packages("priorsense") 
   library(priorsense)
@@ -30,7 +34,9 @@ if (!require(priorsense)) {
 
 # dummy transforms AND ordering
 # VARIABLE SELECTION (LECTURE 11)
-model_vars <- c("low3", "age", "age_num", "econ", "econ5", "edu", "region")
+# AGE AND ANSWER LANGUAGE -> add!
+model_vars <- c("low3", "age", "age_num", "econ", "econ5", "edu", "region",
+                "language", "living")
 # see NAs!
 dat <- pulse %>%
   drop_na(low3) %>%
@@ -73,7 +79,8 @@ pr_full <- c(pr_base, prior(dirichlet(1), class = "simo", coef = "moecon1"),
              prior(normal(0, 1), class = "sds"),
              prior(exponential(1), class = "sd"))
 
-m1 <- fit_opts(low3 ~ age + econ5 + edu, pr_base)
+# all relevant covariates kept -> not preselected without reason
+m1 <- fit_opts(low3 ~ age + econ5 + edu + language + living, pr_base)
 # VARYING INTERCEPT -> motivate
 m2 <- fit_opts(low3 ~ age + econ5 + edu + (1 | region), pr_re)
 m3 <- fit_opts(low3 ~ age + mo(econ) + edu, pr_mo)
@@ -89,15 +96,27 @@ m6 <- fit_opts(low3 ~ age + mo(econ) + edu + (1 + mo(econ) | region),
 # HMC diagnostics?
 # SIMPLE SUMMARY -> NO ISSUES / WHAT WERE THE PROBLEMATIC PARTS?
 # COEFFICIENTS, PLOTS as appendices
+# report artifacts -> output/m1/ (read back into report/report.qmd)
+res_dir <- here::here("output", "m1")
+dir.create(res_dir, showWarnings = FALSE, recursive = TRUE)
+
 summary(m1)
-summarise_draws(as_draws_df(m1), default_convergence_measures())
+m1_summary <- summarise_draws(as_draws_df(m1), default_convergence_measures())
+m1_summary
+saveRDS(m1_summary, file.path(res_dir, "summary.rds"))
+# good convergence on all, R_hat one
 
 # marginal posterior for coefficients reported?
 # report + interpret marginal coefficient posteriors (log-odds / odds ratios)!
 # CONDITIONAL EFFECTS -> what proportion is k≤3
-plot(conditional_effects(m1), ask = FALSE)
+p_cond <- plot(conditional_effects(m1), ask = FALSE, plot = FALSE)
+ggplot2::ggsave(file.path(res_dir, "coef_conditional.png"),
+                patchwork::wrap_plots(p_cond), width = 9, height = 6, dpi = 150)
 # coefficient / odds-ratio interval plot -> for coefficient comparison
-mcmc_plot(m1, variable = "^b_", regex = TRUE, type = "intervals", prob_outer = 0.95)
+p_int <- mcmc_plot(m1, variable = "^b_", regex = TRUE, type = "intervals",
+                   prob_outer = 0.95)
+ggplot2::ggsave(file.path(res_dir, "coef_intervals.png"), p_int,
+                width = 7, height = 5, dpi = 150)
 
 # fits <- list(M1 = m1, M2 = m2, M3 = m3, M4 = m4, M5 = m5, M6 = m6)
 # summary(m2)
@@ -126,13 +145,17 @@ m1_loo_draws <- sapply(seq_len(ncol(yrep_m1)), function(i) {
 # article figure 6 comparison for interpretation (calibration curve, pred. mass, interval bands)
 # AI -> "consider grouped calibration (ppc_calibration faceted by region / econ) since the 
 # research question is about low trust within subgroups"
-ppc_calibration(y = m1$data$low3, yrep = m1_loo_draws,
-                interval = "confidence", prob = 0.95)
+p_ppc <- ppc_calibration(y = m1$data$low3, yrep = m1_loo_draws,
+                         interval = "confidence", prob = 0.95)
+ggplot2::ggsave(file.path(res_dir, "ppc_calibration.png"), p_ppc,
+                width = 6, height = 5, dpi = 150)
 
 # PSIS_LOO -> elpd score and uncertainty
 # "Report and interpret the comparison results, including uncertainty in the estimates"
 m1 <- add_criterion(m1, c("loo"))
-loo(m1)
+m1_loo <- loo(m1)
+m1_loo
+saveRDS(m1_loo, file.path(res_dir, "loo.rds"))
 #          Estimate   SE
 # elpd_loo   -980.0 27.3
 # p_loo        17.8  0.9
@@ -141,8 +164,14 @@ loo(m1)
 # All Pareto k estimates are good (k < 0.7).
 
 # PRIOR PREDICTIVE CHECKS -> group by underlying variable?
-powerscale_sensitivity(m1)
-powerscale_plot_dens(m1)
+m1_psens <- powerscale_sensitivity(m1)
+m1_psens
+saveRDS(m1_psens, file.path(res_dir, "powerscale.rds"))
+# powerscale_plot_dens() returns a SET of panels -> print to a device
+png(file.path(res_dir, "powerscale_dens.png"),
+    width = 8, height = 5, units = "in", res = 150)
+print(powerscale_plot_dens(m1))
+dev.off()
 powerscale_plot_ecdf(m1)
 
 # (bayes_R2(m1) -> could include)
